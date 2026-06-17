@@ -1,8 +1,26 @@
 {
   "updatedAt": "2026-06-17T13:40:00+09:00",
   "departments": [
-    { "id": "ophthalmology", "name": "안과", "waitMinutes": 25, "waitingCount": 7 },
-    { "id": "internal",      "name": "내과", "waitMinutes": 40, "waitingCount": 12 },
-    { "id": "pediatrics",    "name": "소아과", "waitMinutes": 10, "waitingCount": 3 }
+    {
+      "id": "ophthalmology",
+      "name": "안과",
+      "waitMinutes": 25,
+      "waitingCount": 7,
+      "waitingPatients": ["김민수", "이지현", "박수진", "최준호", "정하은", "윤서연", "강태양"]
+    },
+    {
+      "id": "internal",
+      "name": "내과",
+      "waitMinutes": 40,
+      "waitingCount": 12,
+      "waitingPatients": ["홍길동", "임채원", "송미래", "조현우", "한지수", "오승민", "류나연", "신동혁", "황보라", "남궁민수", "전소희", "백준영"]
+    },
+    {
+      "id": "pediatrics",
+      "name": "소아과",
+      "waitMinutes": 10,
+      "waitingCount": 3,
+      "waitingPatients": ["김수아", "이준서", "박지우"]
+    }
   ]
 }

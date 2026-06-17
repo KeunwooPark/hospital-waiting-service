@@ -43,6 +43,9 @@ function renderUpdatedAt(isoString) {
 function buildCard(department) {
   const card = document.createElement('article');
   card.className = 'department-card';
+  card.setAttribute('role', 'button');
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('aria-expanded', 'false');
 
   const nameEl = document.createElement('h2');
   nameEl.className = 'card-name';
@@ -53,9 +56,64 @@ function buildCard(department) {
   statsEl.appendChild(buildStatRow('대기 시간 약', department.waitMinutes, '분'));
   statsEl.appendChild(buildStatRow('대기 인원', department.waitingCount, '명'));
 
+  const patientList = buildPatientList(department.waitingPatients);
+  patientList.hidden = true;
+
+  function toggle() {
+    patientList.hidden = !patientList.hidden;
+    card.setAttribute('aria-expanded', String(!patientList.hidden));
+  }
+
+  function handleKeydown(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggle();
+    }
+  }
+
+  card.addEventListener('click', toggle);
+  card.addEventListener('keydown', handleKeydown);
+
   card.appendChild(nameEl);
   card.appendChild(statsEl);
+  card.appendChild(patientList);
   return card;
+}
+
+function buildPatientList(waitingPatients) {
+  const list = document.createElement('ul');
+  list.className = 'patient-list';
+
+  const hasPatients = Array.isArray(waitingPatients) && waitingPatients.length > 0;
+  if (hasPatients) {
+    waitingPatients.forEach(function (p) {
+      list.appendChild(buildPatientItem(p));
+    });
+  } else {
+    const emptyEl = document.createElement('li');
+    emptyEl.className = 'patient-empty';
+    emptyEl.textContent = '대기 중인 환자가 없습니다.';
+    list.appendChild(emptyEl);
+  }
+
+  return list;
+}
+
+function buildPatientItem(p) {
+  const raw = typeof p === 'string' ? p : (p && p.name);
+  const li = document.createElement('li');
+  li.className = 'patient-item';
+  li.textContent = maskName(raw);
+  return li;
+}
+
+function maskName(fullName) {
+  const name = String(fullName ?? '').trim();
+  const chars = Array.from(name); // 유니코드 안전 분해
+  if (chars.length === 0) return '';
+  if (chars.length === 1) return '*';
+  if (chars.length === 2) return chars[0] + '*';
+  return chars[0] + '*'.repeat(chars.length - 2) + chars[chars.length - 1];
 }
 
 function buildStatRow(label, value, unit) {
