@@ -6,6 +6,13 @@ const statusEl = document.getElementById('status');
 const departmentListEl = document.getElementById('department-list');
 const updatedAtEl = document.getElementById('updated-at');
 
+// ===== Module-level state =====
+
+const POLL_INTERVAL_MS = 3000;
+let latestDepartments = [];
+const notifySubscriptions = new Map(); // key = department.id, value = { ticketNumber, alerted }
+let pollHandle = null;
+
 // ===== Public entry point =====
 
 async function loadDepartments() {
@@ -19,9 +26,11 @@ async function loadDepartments() {
     }
     const data = await res.json();
 
-    renderDepartments(data.departments);
+    latestDepartments = data.departments;
+    renderDepartments(latestDepartments);
     renderUpdatedAt(data.updatedAt);
     hideStatus();
+    startMockPolling();
   } catch (err) {
     showStatus('대기 정보를 불러오지 못했습니다.', true);
     console.error(err);
@@ -77,8 +86,98 @@ function buildCard(department) {
   card.appendChild(nameEl);
   card.appendChild(statsEl);
   card.appendChild(patientList);
+  card.appendChild(buildNotifySection(department));
   return card;
 }
+
+function buildNotifySection(department) {
+  const section = document.createElement('div');
+  section.className = 'card-notify';
+
+  // Prevent clicks inside the notify area from toggling the patient list.
+  section.addEventListener('click', function (e) { e.stopPropagation(); });
+  // Prevent keydown events (Enter/Space) inside the notify area from bubbling
+  // up to the card's keydown handler and wrongly toggling the patient list.
+  section.addEventListener('keydown', function (e) { e.stopPropagation(); });
+
+  const sub = notifySubscriptions.get(department.id);
+
+  if (sub) {
+    const statusP = document.createElement('p');
+    statusP.className = 'notify-status';
+    const position = sub.ticketNumber - department.currentNumber;
+    statusP.textContent = position > 0
+      ? `내 순서: ${position}번째 (알림 신청됨)`
+      : '진료 순서가 지났습니다.';
+    section.appendChild(statusP);
+  } else {
+    const input = document.createElement('input');
+    input.className = 'notify-input';
+    input.type = 'number';
+    input.min = '1';
+    input.placeholder = '내 대기 번호';
+
+    const btn = document.createElement('button');
+    btn.className = 'notify-btn';
+    btn.textContent = '알림 신청';
+    btn.addEventListener('click', function () {
+      handleSubscribe(department.id, input.value);
+    });
+
+    section.appendChild(input);
+    section.appendChild(btn);
+  }
+
+  return section;
+}
+
+// ===== Notify subscription handlers =====
+
+function handleSubscribe(departmentId, rawValue) {
+  const ticketNumber = Number(rawValue);
+  const dept = latestDepartments.find(function (d) { return d.id === departmentId; });
+
+  if (!dept || !Number.isInteger(ticketNumber) || ticketNumber <= dept.currentNumber) {
+    alert(`현재 호출 번호(${dept ? dept.currentNumber : '-'})보다 큰 대기 번호를 입력하세요.`);
+    return;
+  }
+
+  notifySubscriptions.set(departmentId, { ticketNumber, alerted: false });
+  renderDepartments(latestDepartments);
+}
+
+// ===== Mock polling =====
+
+function startMockPolling() {
+  // Guard against duplicate registration across multiple loadDepartments() calls.
+  if (pollHandle) return;
+
+  pollHandle = setInterval(function () {
+    latestDepartments.forEach(function (dept) {
+      if (dept.waitingCount > 0) {
+        dept.currentNumber += 1;
+        dept.waitingCount -= 1;
+      }
+    });
+    renderDepartments(latestDepartments);
+    checkNotifications();
+  }, POLL_INTERVAL_MS);
+}
+
+function checkNotifications() {
+  latestDepartments.forEach(function (dept) {
+    const sub = notifySubscriptions.get(dept.id);
+    if (!sub || sub.alerted) return;
+
+    const position = sub.ticketNumber - dept.currentNumber;
+    if (position > 0 && position <= 3) {
+      alert(`${dept.name} 진료 대기 순서가 ${position}번째입니다. 곧 차례가 됩니다!`);
+      sub.alerted = true;
+    }
+  });
+}
+
+// ===== Patient list builder =====
 
 function buildPatientList(waitingPatients) {
   const list = document.createElement('ul');
@@ -165,6 +264,3 @@ function toKoreanDateTimeString(isoString) {
 // ===== Bootstrap =====
 
 loadDepartments();
-
-// Uncomment to enable automatic refresh every 30 seconds:
-// setInterval(loadDepartments, 30000);
