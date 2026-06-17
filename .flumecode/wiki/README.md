@@ -1,4 +1,4 @@
-<!-- wiki-synced-to: 6c4d419a4d0a02bc1d32e330ed579a286f24f8d7 -->
+<!-- wiki-synced-to: 26546e62bb4f271fa1de38ba98ae09f6acba4cc2 -->
 
 # hospital-waiting-service 위키
 
