@@ -1,0 +1,8 @@
+{
+  "updatedAt": "2026-06-17T13:40:00+09:00",
+  "departments": [
+    { "id": "ophthalmology", "name": "안과", "waitMinutes": 25, "waitingCount": 7 },
+    { "id": "internal",      "name": "내과", "waitMinutes": 40, "waitingCount": 12 },
+    { "id": "pediatrics",    "name": "소아과", "waitMinutes": 10, "waitingCount": 3 }
+  ]
+}
