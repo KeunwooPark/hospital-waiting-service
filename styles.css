@@ -148,3 +148,34 @@ main {
     font-size: 1.4rem;
   }
 }
+
+/* ===== Notify subscription section ===== */
+.card-notify {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  border-top: 1px solid #ebf4ff;
+  padding-top: 0.8rem;
+}
+.notify-input {
+  flex: 1;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+.notify-btn {
+  background-color: #2b6cb0;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.notify-btn:hover { background-color: #2c5282; }
+.notify-status {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #2b6cb0;
+}
