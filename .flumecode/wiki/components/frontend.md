@@ -47,6 +47,8 @@
 
 `buildCard()`는 카드를 접근성 있는 토글 버튼으로 만듭니다. `role="button"`, `tabindex="0"`, `aria-expanded`를 부여하고, 클릭과 Enter/Space 키(`handleKeydown`)로 대기자 명단(`buildPatientList`)의 `hidden`을 토글합니다. 명단은 기본 접힌 상태이며, 토글 시 `aria-expanded`도 함께 갱신됩니다.
 
+표시 제어는 전적으로 HTML `hidden` 속성에 위임합니다. 다만 작성자 규칙 `.patient-list { display: flex; }`가 브라우저 기본의 `[hidden] { display: none }`보다 우선하므로, `styles.css`에 더 높은 특이도의 `.patient-list[hidden] { display: none; }` 규칙이 함께 있어야 `hidden=true`가 실제로 화면에서 사라집니다(이 규칙이 없으면 토글이 동작해도 명단이 항상 펼쳐진 채로 보입니다). 자세한 내용은 아래 [styles.css](#stylescss--모양) 참고.
+
 - `buildPatientList()` → `waitingPatients`가 있으면 `buildPatientItem()`으로 `<li>`를 만들고, 비었으면 "대기 중인 환자가 없습니다." 안내(`.patient-empty`)를 렌더.
 - `maskName()` → 개인정보 보호를 위해 이름을 마스킹합니다. 첫 글자와 끝 글자만 남기고 가운데를 `*`로 채우며(2글자면 끝 글자도 가림, 1글자면 `*`), `Array.from`으로 유니코드를 안전하게 분해합니다.
 
@@ -71,6 +73,7 @@
 - `@media (max-width: 480px)`에서 단일 열로 전환하고 제목·수치 크기를 줄입니다.
 - `#status.error`는 오류 상태에 빨간 배경/글자색을 적용합니다.
 - `.card-notify`는 카드 하단에 상단 구분선과 함께 입력란·버튼을 한 줄로 배치하고, `.notify-status`는 신청 완료 상태를 파란색 굵은 글씨로 강조합니다.
+- `.patient-list`는 펼침 시 `display: flex`로 세로 정렬합니다. 이 작성자 규칙이 브라우저 기본 `[hidden] { display: none }`을 덮어쓰므로, 바로 뒤에 `.patient-list[hidden] { display: none; }`(특이도 0,1,1 > 0,1,0)를 두어 `hidden` 토글이 실제로 명단을 숨기도록 보장합니다. `app.js`가 `hidden`으로 표시를 제어하는 패턴이 화면에 반영되려면 이 규칙이 필수입니다.
 
 ## 데이터 계약 (data.json)
 

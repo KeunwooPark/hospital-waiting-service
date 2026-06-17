@@ -124,6 +124,11 @@ main {
   gap: 0.35rem;
 }
 
+/* hidden 속성이 author display 규칙보다 우선해야 하므로 명시적으로 재선언 */
+.patient-list[hidden] {
+  display: none;
+}
+
 .patient-item {
   font-size: 0.95rem;
   color: #4a5568;
